@@ -96,7 +96,7 @@ jobs:
             echo "::group::desc-mode=$mode"
             vgpu run build/Linux-x86_64/popsift-demo --popsift-mode \
               --gauss-mode=relative --desc-mode=$mode --norm-multi=9 \
-              --write-as-uchar -i synth.pgm | tee out-$mode.log
+              --write-as-uchar -i synth.pgm 2>&1 | tee out-$mode.log
             grep -q "Number of feature points: 212 number of feature descriptors: 270" out-$mode.log
             lines=$(wc -l < output-features.txt)
             sum=$(sort output-features.txt | md5sum | cut -d' ' -f1)
