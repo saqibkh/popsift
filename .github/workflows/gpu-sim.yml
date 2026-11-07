@@ -7,8 +7,6 @@ name: CUDA functional test (simulated H100)
 # testing and does not replace it.
 
 on:
-  push:
-    branches: [verify-gpu-sim]
   workflow_dispatch:
   pull_request:
     paths:
@@ -100,10 +98,13 @@ jobs:
               --gauss-mode=relative --desc-mode=$mode --norm-multi=9 \
               --write-as-uchar -i synth.pgm | tee out-$mode.log
             grep -q "Number of feature points: 212 number of feature descriptors: 270" out-$mode.log
-            [ "$(wc -l < output-features.txt)" = 270 ]
+            lines=$(wc -l < output-features.txt)
+            sum=$(sort output-features.txt | md5sum | cut -d' ' -f1)
+            echo "descriptor lines: $lines, md5: $sum"
+            [ "$lines" = 270 ]
             sort -n output-features.txt | cut -d' ' -f1-4 | md5sum > pos-$mode.md5
             if [ -n "${golden[$mode]:-}" ]; then
-              [ "$(sort output-features.txt | md5sum | cut -d' ' -f1)" = "${golden[$mode]}" ]
+              [ "$sum" = "${golden[$mode]}" ]
             fi
             mv output-features.txt features-$mode.txt
             echo "::endgroup::"
